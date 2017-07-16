@@ -6,7 +6,7 @@ namespace CargoInfoMod
     {
         public string Name => "Cargo Info";
 
-        public string Description => "-TODO-";
+        public string Description => "Displays statistics panel for Cargo Stations service view and allows monitoring cargo dynamics";
 
         public static readonly uint GameVersion = 163832080u;
         public static readonly uint GameVersionA = 1u;
