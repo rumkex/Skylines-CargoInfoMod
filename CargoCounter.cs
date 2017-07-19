@@ -67,8 +67,8 @@ namespace CargoInfoMod
         {
             if (lastReset < SimulationManager.instance.m_currentGameTime.Date && SimulationManager.instance.m_currentGameTime.Day == 1)
             {
-                Debug.Log("Resetting all counter on the first day of the month");
                 mod.data.UpdateCounters();
+                Debug.Log("Monthly counter values updated");
                 lastReset = SimulationManager.instance.m_currentGameTime.Date;
             }
 

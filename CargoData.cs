@@ -59,9 +59,8 @@ namespace CargoInfoMod
                 }
                 var ms = new MemoryStream(data);
                 var binaryFormatter = new BinaryFormatter();
-                binaryFormatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
                 cargoStatIndex = binaryFormatter.Deserialize(ms) as Dictionary<ushort, CargoStats> ?? cargoStatIndex;
-                Debug.Log(string.Format("Loaded stats for {0} stations", cargoStatIndex.Count));
+                Debug.LogFormat("Loaded stats for {0} stations", cargoStatIndex.Count);
             }
             catch (SerializationException e)
             {
@@ -78,11 +77,11 @@ namespace CargoInfoMod
                 var prefab = PrefabCollection<BuildingInfo>.GetLoaded(i);
                 if (prefab.m_buildingAI is CargoStationAI)
                 {
-                    Debug.Log(string.Format("Cargo station prefab found: {0}", prefab.name));
+                    Debug.LogFormat("Cargo station prefab found: {0}", prefab.name);
                     cargoStations.Add(prefab.m_prefabDataIndex);
                 }
             }
-            Debug.Log(string.Format("Found {0} cargo station prefabs", cargoStations.Count));
+            Debug.LogFormat("Found {0} cargo station prefabs", cargoStations.Count);
 
             for (ushort i = 0; i < BuildingManager.instance.m_buildings.m_size; i++)
             {
@@ -96,14 +95,14 @@ namespace CargoInfoMod
         public override void OnSaveData()
         {
             Debug.Log("Saving data...");
+
             try
             {
                 var ms = new MemoryStream();
                 var binaryFormatter = new BinaryFormatter();
-                binaryFormatter.AssemblyFormat = FormatterAssemblyStyle.Simple;
                 binaryFormatter.Serialize(ms, cargoStatIndex);
                 serializableDataManager.SaveData(ModInfo.Namespace, ms.ToArray());
-                Debug.Log(string.Format("Saved stats for {0} stations", cargoStatIndex.Count));
+                Debug.LogFormat("Saved stats for {0} stations", cargoStatIndex.Count);
             }
             catch (SerializationException e)
             {
@@ -119,7 +118,7 @@ namespace CargoInfoMod
                 var buildingName = BuildingManager.instance.GetBuildingName(buildingID, InstanceID.Empty);
                 // Restoring previous values of truck statistics
                 cargoStatIndex.Add(buildingID, new CargoStats());
-                Debug.Log(string.Format("Cargo station added to index: {0}", buildingName));
+                Debug.LogFormat("Cargo station added to index: {0}", buildingName);
             }
         }
 
@@ -129,7 +128,7 @@ namespace CargoInfoMod
             {
                 var buildingName = BuildingManager.instance.GetBuildingName(buildingID, InstanceID.Empty);
                 cargoStatIndex.Remove(buildingID);
-                Debug.Log(string.Format("Cargo station removed from index: {0}", buildingName));
+                Debug.LogFormat("Cargo station removed from index: {0}", buildingName);
             }
         }
 
