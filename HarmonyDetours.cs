@@ -7,13 +7,11 @@ namespace CargoInfoMod
 {
     static class HarmonyDetours
     {
-        public const string patchNamespace = "com.github.rumkex.cargomod";
-
         public static void Apply()
         {
-            var harmony = HarmonyInstance.Create(patchNamespace);
+            var harmony = HarmonyInstance.Create(ModInfo.Namespace);
             Version currentVersion;
-            if (harmony.VersionInfo(out currentVersion).ContainsKey(patchNamespace))
+            if (harmony.VersionInfo(out currentVersion).ContainsKey(ModInfo.Namespace))
             {
                 Debug.LogWarning("Harmony patches already present");
                 return;
@@ -57,27 +55,28 @@ namespace CargoInfoMod
             __state.transferSize = vehicleData.m_transferSize;
         }
 
-        public static void CargoTruckAI_PostChangeVehicleType(bool __result, ref VehicleLoad __state, ushort vehicleID, ref Vehicle vehicleData, PathUnit.Position pathPos, uint laneID)
-        {
-            if (__result && __state.buildingID != 0 && BuildingManager.instance.m_buildings.m_buffer[__state.buildingID].Info.m_buildingAI is CargoStationAI)
-            {
-                if (!CargoCounter.instance.cargoStatIndex.ContainsKey(__state.buildingID))
-                {
-                    CargoCounter.instance.cargoStatIndex.Add(__state.buildingID, new CargoStats());
-                }
-                CargoCounter.instance.cargoStatIndex[__state.buildingID].carsReceived++;
-            }
-        }
-
         public static void CargoTruckAI_SetSource(ushort vehicleID, ref Vehicle data, ushort sourceBuilding)
         {
             if (sourceBuilding != 0 && BuildingManager.instance.m_buildings.m_buffer[sourceBuilding].Info.m_buildingAI is CargoStationAI)
             {
-                if (!CargoCounter.instance.cargoStatIndex.ContainsKey(sourceBuilding))
-                {
-                    CargoCounter.instance.cargoStatIndex.Add(sourceBuilding, new CargoStats());
-                }
-                CargoCounter.instance.cargoStatIndex[sourceBuilding].carsSent++;
+                // Store the values in building's customBuffers for persistence
+                BuildingManager.instance.m_buildings.m_buffer[sourceBuilding].m_customBuffer1 = (ushort)Mathf.Min(
+                    BuildingManager.instance.m_buildings.m_buffer[sourceBuilding].m_customBuffer1 + 1,
+                    ushort.MaxValue
+                );
+            }
+        }
+
+        public static void CargoTruckAI_PostChangeVehicleType(bool __result, ref VehicleLoad __state, ushort vehicleID, ref Vehicle vehicleData, PathUnit.Position pathPos, uint laneID)
+        {
+            var targetBuilding = __state.buildingID;
+            if (__result && targetBuilding != 0 && BuildingManager.instance.m_buildings.m_buffer[targetBuilding].Info.m_buildingAI is CargoStationAI)
+            {
+                // Store the values in building's customBuffers for persistence
+                BuildingManager.instance.m_buildings.m_buffer[targetBuilding].m_customBuffer2 = (ushort)Mathf.Min(
+                    BuildingManager.instance.m_buildings.m_buffer[targetBuilding].m_customBuffer2 + 1,
+                    ushort.MaxValue
+                );
             }
         }
     }
