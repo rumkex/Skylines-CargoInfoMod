@@ -75,6 +75,11 @@ namespace CargoInfoMod
             for (uint i = 0; i < PrefabCollection<BuildingInfo>.LoadedCount(); i++)
             {
                 var prefab = PrefabCollection<BuildingInfo>.GetLoaded(i);
+                if (prefab == null)
+                {
+                    Debug.LogWarningFormat("Uninitialized building prefab #{0}! (this should not happen)", i);
+                    continue;
+                }
                 if (prefab.m_buildingAI is CargoStationAI)
                 {
                     Debug.LogFormat("Cargo station prefab found: {0}", prefab.name);
