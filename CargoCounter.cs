@@ -13,6 +13,7 @@ namespace CargoInfoMod
     {
         private ModInfo mod;
 
+        private CargoUIPanel cargoPanel;
         private UIPanel servicePanel;
         private CityServiceWorldInfoPanel serviceInfoPanel;
         private UILabel statsLabel;
@@ -29,12 +30,16 @@ namespace CargoInfoMod
                 OnLevelLoaded(SimulationManager.UpdateMode.LoadGame);
             }
             LoadingManager.instance.m_levelLoaded += OnLevelLoaded;
+            LoadingManager.instance.m_levelPreUnloaded += OnLevelUnloaded;
 
             HarmonyDetours.Apply();
         }
 
+        private MouseEventHandler showDelegate;
+
         public override void OnReleased()
         {
+            OnLevelUnloaded();
             // TODO: Unapply Harmony patches once the feature is available
             base.OnReleased();
         }
@@ -46,9 +51,22 @@ namespace CargoInfoMod
             SetupUIBindings();
         }
 
+        private void OnLevelUnloaded()
+        {
+            Debug.Log("Cleaning up UI...");
+            statsLabel.eventClicked -= showDelegate;
+            GameObject.Destroy(cargoPanel);
+        }
+
         private void SetupUIBindings()
         {
+            if (cargoPanel != null)
+                OnLevelUnloaded();
+
             Debug.Log("Setting up UI...");
+
+            cargoPanel = (CargoUIPanel)UIView.GetAView().AddUIComponent(typeof(CargoUIPanel));
+
             servicePanel = UIHelper.GetPanel("(Library) CityServiceWorldInfoPanel");
             serviceInfoPanel = servicePanel?.GetComponent<CityServiceWorldInfoPanel>();
             var statsPanel = servicePanel?.Find<UIPanel>("StatsPanel");
@@ -60,10 +78,23 @@ namespace CargoInfoMod
             if (statsLabel == null)
                 Debug.LogError("Service stats label not found");
             else
+            {
                 Debug.Log("Service stats label found!");
+
+                showDelegate = (sender, e) =>
+                {
+                    if (mod.data.TryGetEntry(WorldInfoPanel.GetCurrentInstanceID().Building, out _))
+                    {
+                        cargoPanel.Show();
+                    }
+                };
+
+                statsLabel.eventClicked += showDelegate;
+            }
         }
 
         private DateTime lastReset = DateTime.MinValue;
+
         public override void OnUpdate(float realTimeDelta, float simulationTimeDelta)
         {
             if (lastReset < SimulationManager.instance.m_currentGameTime.Date && SimulationManager.instance.m_currentGameTime.Day == 1)
@@ -79,11 +110,12 @@ namespace CargoInfoMod
                 CargoStats2 stats;
                 if (instanceID.Building != 0 && mod.data.TryGetEntry(instanceID.Building, out stats))
                 {
-                    var building = BuildingManager.instance.m_buildings.m_buffer[instanceID.Building];
                     var sb = new StringBuilder();
                     sb.AppendFormat("Trucks received last month: {0:0}", Mathf.Max(stats.CarsReceived, stats.CarsReceivedLastTime) / CargoData.TruckCapacity);
                     sb.AppendLine();
                     sb.AppendFormat("Trucks sent last month: {0:0}", Mathf.Max(stats.CarsSent, stats.CarsSentLastTime) / CargoData.TruckCapacity);
+                    sb.AppendLine();
+                    sb.Append("Click for more!");
                     statsLabel.text = sb.ToString();
                 }
             }

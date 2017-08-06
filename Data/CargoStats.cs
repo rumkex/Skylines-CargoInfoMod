@@ -11,11 +11,18 @@ namespace CargoInfoMod.Data
         Sent =     0x002,
         Imported = 0x004,
         Exported = 0x008,
+
+        Resource = 0x0F0,
+
+        Oil =      0x000,
         Petrol =   0x010,
-        Coal =     0x020,
-        Lumber =   0x040,
-        Food =     0x080,
-        Goods =    0x100,
+        Ore =      0x020,
+        Coal =     0x030,
+        Logs =     0x040,
+        Lumber =   0x050,
+        Grain =    0x060,
+        Food =     0x070,
+        Goods =    0x080
     }
 
     [Serializable]

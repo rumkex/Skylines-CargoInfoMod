@@ -57,12 +57,6 @@ namespace CargoInfoMod
                 Debug.LogError("Could not find parent IUserMod!");
         }
 
-        public override void OnReleased()
-        {
-            OnSaveData();
-            base.OnReleased();
-        }
-
         public override void OnLoadData()
         {
             Debug.Log("Restoring previous data...");
@@ -85,9 +79,7 @@ namespace CargoInfoMod
                     {
                         CarsCounted =
                         {
-                            [(int) (CarFlags.Goods | CarFlags.Sent)] = kv.Value.carsSentLastTime * TruckCapacity,
                             [(int) (CarFlags.Previous | CarFlags.Goods | CarFlags.Sent)] = kv.Value.carsSentLastTime * TruckCapacity,
-                            [(int) (CarFlags.Goods)] = kv.Value.carsReceivedLastTime * TruckCapacity,
                             [(int) (CarFlags.Previous | CarFlags.Goods)] = kv.Value.carsReceivedLastTime * TruckCapacity
                         }
                     });
@@ -206,6 +198,18 @@ namespace CargoInfoMod
                 cargoFlags |= CarFlags.Imported;
             switch (cargo.transferType)
             {
+                case TransferType.Oil:
+                    cargoFlags |= CarFlags.Oil;
+                    break;
+                case TransferType.Ore:
+                    cargoFlags |= CarFlags.Ore;
+                    break;
+                case TransferType.Logs:
+                    cargoFlags |= CarFlags.Logs;
+                    break;
+                case TransferType.Grain:
+                    cargoFlags |= CarFlags.Grain;
+                    break;
                 case TransferType.Petrol:
                     cargoFlags |= CarFlags.Petrol;
                     break;
