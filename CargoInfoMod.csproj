@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="CargoCounter.cs" />
     <Compile Include="CargoData.cs" />
+    <Compile Include="CargoUIPanel.cs" />
     <Compile Include="ModInfo.cs" />
     <Compile Include="HarmonyDetours.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
