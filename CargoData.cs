@@ -1,28 +1,45 @@
-﻿using ColossalFramework.Plugins;
+﻿using System;
+using CargoInfoMod.Data;
+using ColossalFramework.Plugins;
 using ICities;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using UnityEngine;
-using CargoInfoMod.Data;
+
+using TransferType = TransferManager.TransferReason;
 
 namespace CargoInfoMod
 {
+    public struct CargoParcel
+    {
+        public ushort building;
+        public bool incoming;
+        public ushort transferSize;
+        public TransferType transferType;
+        public Vehicle.Flags flags;
+    }
 
     public class CargoData : SerializableDataExtensionBase
     {
+        public static CargoData Instance;
+
+        public const int TruckCapacity = 8000;
+
         private ModInfo mod;
 
-        private Dictionary<ushort, CargoStats> cargoStatIndex;
+        private Dictionary<ushort, CargoStats2> cargoStatIndex;
         private HashSet<int> cargoStations;
 
         public CargoData()
         {
             cargoStations = new HashSet<int>();
-            cargoStatIndex = new Dictionary<ushort, CargoStats>();
+            cargoStatIndex = new Dictionary<ushort, CargoStats2>();
+            Instance = this;
         }
 
         public override void OnCreated(ISerializableData serializedData)
@@ -49,23 +66,43 @@ namespace CargoInfoMod
         public override void OnLoadData()
         {
             Debug.Log("Restoring previous data...");
+            var data = serializableDataManager.LoadData(ModInfo.Namespace);
+            if (data == null)
+            {
+                Debug.Log("No previous data found");
+                return;
+            }
+            var ms = new MemoryStream(data);
             try
             {
-                var data = serializableDataManager.LoadData(ModInfo.Namespace);
-                if (data == null)
-                {
-                    Debug.Log("No previous data found");
-                    return;
-                }
-                var ms = new MemoryStream(data);
+                // Try deserialize older data format first
                 var binaryFormatter = new BinaryFormatter();
-                cargoStatIndex = binaryFormatter.Deserialize(ms) as Dictionary<ushort, CargoStats> ?? cargoStatIndex;
-                Debug.LogFormat("Loaded stats for {0} stations", cargoStatIndex.Count);
+                var indexData = binaryFormatter.Deserialize(ms);
+                if (indexData is Dictionary<ushort, CargoStats>)
+                {
+                    Debug.LogWarning("Loaded v1 data, upgrading...");
+                    cargoStatIndex = ((Dictionary<ushort, CargoStats>) indexData).ToDictionary(kv => kv.Key, kv => new CargoStats2
+                    {
+                        CarsCounted =
+                        {
+                            [(int) (CarFlags.Goods | CarFlags.Sent)] = kv.Value.carsSentLastTime * TruckCapacity,
+                            [(int) (CarFlags.Previous | CarFlags.Goods | CarFlags.Sent)] = kv.Value.carsSentLastTime * TruckCapacity,
+                            [(int) (CarFlags.Goods)] = kv.Value.carsReceivedLastTime * TruckCapacity,
+                            [(int) (CarFlags.Previous | CarFlags.Goods)] = kv.Value.carsReceivedLastTime * TruckCapacity
+                        }
+                    });
+                }
+                else if (indexData is Dictionary<ushort, CargoStats2>)
+                {
+                    Debug.Log("Loaded v2 data");
+                    cargoStatIndex = (Dictionary<ushort, CargoStats2>) indexData;
+                }
             }
             catch (SerializationException e)
             {
-                Debug.LogError("While deserializing data: " + e.Message);
+                Debug.LogErrorFormat("While trying to load data: {0}", e.ToString());
             }
+            Debug.LogFormat("Loaded stats for {0} stations", cargoStatIndex.Count);
         }
 
         public void Setup()
@@ -122,7 +159,7 @@ namespace CargoInfoMod
             {
                 var buildingName = BuildingManager.instance.GetBuildingName(buildingID, InstanceID.Empty);
                 // Restoring previous values of truck statistics
-                cargoStatIndex.Add(buildingID, new CargoStats());
+                cargoStatIndex.Add(buildingID, new CargoStats2());
                 Debug.LogFormat("Cargo station added to index: {0}", buildingName);
             }
         }
@@ -141,16 +178,56 @@ namespace CargoInfoMod
         {
             foreach (var pair in cargoStatIndex)
             {
-                pair.Value.carsReceivedLastTime = BuildingManager.instance.m_buildings.m_buffer[pair.Key].m_customBuffer1;
-                pair.Value.carsSentLastTime = BuildingManager.instance.m_buildings.m_buffer[pair.Key].m_customBuffer2;
-                BuildingManager.instance.m_buildings.m_buffer[pair.Key].m_customBuffer1 = 0;
-                BuildingManager.instance.m_buildings.m_buffer[pair.Key].m_customBuffer2 = 0;
+                for (var i = 0; i < pair.Value.CarsCounted.Length; i++)
+                {
+                    var previ = (int) ((CarFlags) i | CarFlags.Previous);
+                    if (previ == i) continue;
+                    pair.Value.CarsCounted[previ] = pair.Value.CarsCounted[i];
+                    pair.Value.CarsCounted[i] = 0;
+                }
             }
         }
 
-        public bool TryGetEntry(ushort building, out CargoStats stats)
+        public bool TryGetEntry(ushort building, out CargoStats2 stats)
         {
             return cargoStatIndex.TryGetValue(building, out stats);
+        }
+
+        public void Count(CargoParcel cargo)
+        {
+            if (cargo.building == 0 ||
+                !(BuildingManager.instance.m_buildings.m_buffer[cargo.building].Info.m_buildingAI is CargoStationAI))
+                return;
+
+            var cargoFlags = cargo.incoming ? CarFlags.None : CarFlags.Sent;
+            if ((cargo.flags & Vehicle.Flags.Exporting) != 0)
+                cargoFlags |= CarFlags.Exported;
+            else if ((cargo.flags & Vehicle.Flags.Importing) != 0)
+                cargoFlags |= CarFlags.Imported;
+            switch (cargo.transferType)
+            {
+                case TransferType.Petrol:
+                    cargoFlags |= CarFlags.Petrol;
+                    break;
+                case TransferType.Coal:
+                    cargoFlags |= CarFlags.Coal;
+                    break;
+                case TransferType.Lumber:
+                    cargoFlags |= CarFlags.Lumber;
+                    break;
+                case TransferType.Food:
+                    cargoFlags |= CarFlags.Food;
+                    break;
+                case TransferType.Goods:
+                    cargoFlags |= CarFlags.Goods;
+                    break;
+                default:
+                    Debug.LogErrorFormat("Unexpected transfer type: {0}", Enum.GetName(typeof(TransferType), cargo.transferType));
+                    break;
+            }
+
+            if (cargoStatIndex.TryGetValue(cargo.building, out CargoStats2 stats))
+                stats.CarsCounted[(int)cargoFlags] += cargo.transferSize;
         }
     }
 }

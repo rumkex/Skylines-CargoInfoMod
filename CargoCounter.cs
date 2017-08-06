@@ -35,6 +35,7 @@ namespace CargoInfoMod
 
         public override void OnReleased()
         {
+            // TODO: Unapply Harmony patches once the feature is available
             base.OnReleased();
         }
 
@@ -67,22 +68,22 @@ namespace CargoInfoMod
         {
             if (lastReset < SimulationManager.instance.m_currentGameTime.Date && SimulationManager.instance.m_currentGameTime.Day == 1)
             {
+                lastReset = SimulationManager.instance.m_currentGameTime.Date;
                 mod.data.UpdateCounters();
                 Debug.Log("Monthly counter values updated");
-                lastReset = SimulationManager.instance.m_currentGameTime.Date;
             }
 
             if (statsLabel != null && serviceInfoPanel.isActiveAndEnabled)
             {
                 InstanceID instanceID = WorldInfoPanel.GetCurrentInstanceID();
-                CargoStats stats;
+                CargoStats2 stats;
                 if (instanceID.Building != 0 && mod.data.TryGetEntry(instanceID.Building, out stats))
                 {
                     var building = BuildingManager.instance.m_buildings.m_buffer[instanceID.Building];
                     var sb = new StringBuilder();
-                    sb.AppendFormat("Trucks received last month: {0}", Mathf.Max(building.m_customBuffer1, stats.carsReceivedLastTime));
+                    sb.AppendFormat("Trucks received last month: {0:0}", Mathf.Max(stats.CarsReceived, stats.CarsReceivedLastTime) / CargoData.TruckCapacity);
                     sb.AppendLine();
-                    sb.AppendFormat("Trucks sent last month: {0}", Mathf.Max(building.m_customBuffer2, stats.carsSentLastTime));
+                    sb.AppendFormat("Trucks sent last month: {0:0}", Mathf.Max(stats.CarsSent, stats.CarsSentLastTime) / CargoData.TruckCapacity);
                     statsLabel.text = sb.ToString();
                 }
             }
