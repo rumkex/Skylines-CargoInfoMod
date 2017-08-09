@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using ICities;
 using ColossalFramework.UI;
-using System;
 
 namespace CargoInfoMod
 {

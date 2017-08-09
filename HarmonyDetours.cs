@@ -1,7 +1,6 @@
 ﻿using Harmony;
 using System;
 using System.Reflection;
-using CargoInfoMod.Data;
 using UnityEngine;
 
 namespace CargoInfoMod
