@@ -18,10 +18,68 @@ namespace CargoInfoMod
     public struct CargoParcel
     {
         public ushort building;
-        public bool incoming;
         public ushort transferSize;
-        public TransferType transferType;
-        public Vehicle.Flags flags;
+        public CarFlags flags;
+        public int ResourceType => (flags & CarFlags.Resource) - CarFlags.Oil;
+
+        public static readonly CarFlags[] ResourceTypes =
+        {
+            CarFlags.Oil,
+            CarFlags.Petrol,
+            CarFlags.Ore,
+            CarFlags.Coal,
+            CarFlags.Logs,
+            CarFlags.Lumber,
+            CarFlags.Grain,
+            CarFlags.Food,
+            CarFlags.Goods
+        };
+
+        public CargoParcel(ushort buildingID, bool incoming, byte transferType, ushort transferSize, Vehicle.Flags flags)
+        {
+            this.transferSize = transferSize;
+            this.building = buildingID;
+            this.flags = incoming ? CarFlags.None: CarFlags.Sent;
+
+            if ((flags & Vehicle.Flags.Exporting) != 0)
+                this.flags |= CarFlags.Exported;
+            else if ((flags & Vehicle.Flags.Importing) != 0)
+                this.flags |= CarFlags.Imported;
+
+            switch ((TransferType)transferType)
+            {
+                case TransferType.Oil:
+                    this.flags |= CarFlags.Oil;
+                    break;
+                case TransferType.Ore:
+                    this.flags |= CarFlags.Ore;
+                    break;
+                case TransferType.Logs:
+                    this.flags |= CarFlags.Logs;
+                    break;
+                case TransferType.Grain:
+                    this.flags |= CarFlags.Grain;
+                    break;
+                case TransferType.Petrol:
+                    this.flags |= CarFlags.Petrol;
+                    break;
+                case TransferType.Coal:
+                    this.flags |= CarFlags.Coal;
+                    break;
+                case TransferType.Lumber:
+                    this.flags |= CarFlags.Lumber;
+                    break;
+                case TransferType.Food:
+                    this.flags |= CarFlags.Food;
+                    break;
+                case TransferType.Goods:
+                    this.flags |= CarFlags.Goods;
+                    break;
+                default:
+                    Debug.LogErrorFormat("Unexpected transfer type: {0}", Enum.GetName(typeof(TransferType), transferType));
+                    break;
+            }
+        }
     }
 
     public class CargoData : SerializableDataExtensionBase
@@ -191,47 +249,8 @@ namespace CargoInfoMod
                 !(BuildingManager.instance.m_buildings.m_buffer[cargo.building].Info.m_buildingAI is CargoStationAI))
                 return;
 
-            var cargoFlags = cargo.incoming ? CarFlags.None : CarFlags.Sent;
-            if ((cargo.flags & Vehicle.Flags.Exporting) != 0)
-                cargoFlags |= CarFlags.Exported;
-            else if ((cargo.flags & Vehicle.Flags.Importing) != 0)
-                cargoFlags |= CarFlags.Imported;
-            switch (cargo.transferType)
-            {
-                case TransferType.Oil:
-                    cargoFlags |= CarFlags.Oil;
-                    break;
-                case TransferType.Ore:
-                    cargoFlags |= CarFlags.Ore;
-                    break;
-                case TransferType.Logs:
-                    cargoFlags |= CarFlags.Logs;
-                    break;
-                case TransferType.Grain:
-                    cargoFlags |= CarFlags.Grain;
-                    break;
-                case TransferType.Petrol:
-                    cargoFlags |= CarFlags.Petrol;
-                    break;
-                case TransferType.Coal:
-                    cargoFlags |= CarFlags.Coal;
-                    break;
-                case TransferType.Lumber:
-                    cargoFlags |= CarFlags.Lumber;
-                    break;
-                case TransferType.Food:
-                    cargoFlags |= CarFlags.Food;
-                    break;
-                case TransferType.Goods:
-                    cargoFlags |= CarFlags.Goods;
-                    break;
-                default:
-                    Debug.LogErrorFormat("Unexpected transfer type: {0}", Enum.GetName(typeof(TransferType), cargo.transferType));
-                    break;
-            }
-
             if (cargoStatIndex.TryGetValue(cargo.building, out CargoStats2 stats))
-                stats.CarsCounted[(int)cargoFlags] += cargo.transferSize;
+                stats.CarsCounted[(int)cargo.flags] += cargo.transferSize;
         }
     }
 }

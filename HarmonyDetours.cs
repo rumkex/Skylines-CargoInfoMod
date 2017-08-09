@@ -1,9 +1,8 @@
 ﻿using Harmony;
 using System;
 using System.Reflection;
+using CargoInfoMod.Data;
 using UnityEngine;
-
-using TransferType = TransferManager.TransferReason;
 
 namespace CargoInfoMod
 {
@@ -47,14 +46,7 @@ namespace CargoInfoMod
             NetInfo info = NetManager.instance.m_segments.m_buffer[pathPos.m_segment].Info;
             ushort buildingID = BuildingManager.instance.FindBuilding(vector, 100f, info.m_class.m_service, ItemClass.SubService.None, Building.Flags.None, Building.Flags.None);
 
-            __state = new CargoParcel
-            {
-                incoming = true,
-                building = buildingID,
-                flags = vehicleData.m_flags,
-                transferSize = vehicleData.m_transferSize,
-                transferType = (TransferType) vehicleData.m_transferType
-            };
+            __state = new CargoParcel(buildingID, true, vehicleData.m_transferType, vehicleData.m_transferSize, vehicleData.m_flags);
         }
 
         public static void CargoTruckAI_PostChangeVehicleType(bool __result, ref CargoParcel __state, ushort vehicleID, ref Vehicle vehicleData, PathUnit.Position pathPos, uint laneID)
@@ -67,14 +59,8 @@ namespace CargoInfoMod
 
         public static void CargoTruckAI_SetSource(ushort vehicleID, ref Vehicle data, ushort sourceBuilding)
         {
-            CargoData.Instance.Count(new CargoParcel
-            {
-                incoming = false,
-                building = sourceBuilding,
-                flags = data.m_flags,
-                transferSize = data.m_transferSize,
-                transferType = (TransferType)data.m_transferType
-            } );
+            var parcel = new CargoParcel(sourceBuilding, false, data.m_transferType, data.m_transferSize, data.m_flags);
+            CargoData.Instance.Count(parcel);
         }
     }
 }
