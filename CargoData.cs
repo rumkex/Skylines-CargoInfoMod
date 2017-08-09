@@ -19,7 +19,7 @@ namespace CargoInfoMod
         public ushort building;
         public ushort transferSize;
         public CarFlags flags;
-        public int ResourceType => (flags & CarFlags.Resource) - CarFlags.Oil;
+        public int ResourceType => ((flags & CarFlags.Resource) - CarFlags.Oil) / 0x10;
 
         public static readonly CarFlags[] ResourceTypes =
         {
