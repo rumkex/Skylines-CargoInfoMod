@@ -63,6 +63,7 @@
     <Compile Include="ModInfo.cs" />
     <Compile Include="HarmonyDetours.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UICargoChart.cs" />
     <Compile Include="UIHelper.cs" />
   </ItemGroup>
   <ItemGroup>

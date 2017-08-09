@@ -15,25 +15,12 @@ namespace CargoInfoMod
 
         private bool displayCurrent;
 
-        private readonly CarFlags[] resources =
-        {
-            CarFlags.Oil,
-            CarFlags.Petrol,
-            CarFlags.Ore,
-            CarFlags.Coal,
-            CarFlags.Logs,
-            CarFlags.Lumber,
-            CarFlags.Grain,
-            CarFlags.Food,
-            CarFlags.Goods
-        };
-
         public CargoUIPanel()
         {
             mod = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly()).userModInstance as ModInfo;
         }
 
-        private List<UIRadialChart> charts = new List<UIRadialChart>();
+        private List<UICargoChart> charts = new List<UICargoChart>();
         private List<UILabel> labels = new List<UILabel>();
 
         private readonly List<Func<CarFlags, bool>> cargoCategories = new List<Func<CarFlags, bool>>
@@ -173,24 +160,8 @@ namespace CargoInfoMod
 
             for (int n = 0; n < cargoCategories.Count; n++)
             {
-                var category = cargoCategories[n];
-                var chart = (n > 2 ? sentPanel: rcvdPanel).AddUIComponent<UIRadialChart>();
+                var chart = (n > 2 ? sentPanel: rcvdPanel).AddUIComponent<UICargoChart>();
                 chart.size = new Vector2(90, 90);
-                for (int i = 0; i < resources.Length; i++)
-                {
-                    var resourceColor = TransferManager.instance.m_properties.m_resourceColors[13 + i / 2];
-                    if (i % 2 != 0)
-                    {
-                        // Refined resources are slightly darker colored
-                        resourceColor.r *= 0.8f;
-                        resourceColor.g *= 0.8f;
-                        resourceColor.b *= 0.8f;
-                    }
-                    chart.AddSlice();
-                    chart.GetSlice(i).innerColor = chart.GetSlice(i).outterColor = resourceColor;
-                }
-                chart.SetValues(resources.Select(t => 0f).ToArray());
-                chart.spriteName = "PieChartBg";
                 charts.Add(chart);
 
                 var label = (n > 2 ? sentStatPanel : rcvdStatPanel).AddUIComponent<UILabel>();
@@ -238,11 +209,11 @@ namespace CargoInfoMod
 
                 if (categoryTotal == 0)
                 {
-                    charts[i].SetValues(resources.Select(t => 0f).ToArray());
+                    charts[i].SetValues(CargoParcel.ResourceTypes.Select(t => 0f).ToArray());
                     continue;
                 }
 
-                var partStats = resources.Select(type => stats.GetTotalWhere(
+                var partStats = CargoParcel.ResourceTypes.Select(type => stats.GetTotalWhere(
                     t => category(t) && (t & CarFlags.Resource) == type && (t & CarFlags.Previous) == testFlag
                     ) / (float)categoryTotal).ToArray();
 
