@@ -46,6 +46,13 @@ namespace CargoInfoMod
 
         private void OnLevelLoaded(SimulationManager.UpdateMode updateMode)
         {
+            OnLevelUnloaded();
+
+            if (updateMode != SimulationManager.UpdateMode.NewGameFromMap &&
+                updateMode != SimulationManager.UpdateMode.NewGameFromScenario &&
+                updateMode != SimulationManager.UpdateMode.LoadGame)
+                return;
+
             mod.data.Setup();
 
             SetupUIBindings();
@@ -53,6 +60,9 @@ namespace CargoInfoMod
 
         private void OnLevelUnloaded()
         {
+            if (cargoPanel == null)
+                return;
+
             Debug.Log("Cleaning up UI...");
             statsLabel.eventClicked -= showDelegate;
             GameObject.Destroy(cargoPanel);
@@ -61,9 +71,6 @@ namespace CargoInfoMod
 
         private void SetupUIBindings()
         {
-            if (cargoPanel != null)
-                OnLevelUnloaded();
-
             Debug.Log("Setting up UI...");
 
             cargoPanel = (CargoUIPanel)UIView.GetAView().AddUIComponent(typeof(CargoUIPanel));
