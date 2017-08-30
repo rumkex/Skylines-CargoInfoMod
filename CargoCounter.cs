@@ -199,9 +199,23 @@ namespace CargoInfoMod
                 if (instanceID.Building != 0 && mod.data.TryGetEntry(instanceID.Building, out stats))
                 {
                     var sb = new StringBuilder();
-                    sb.AppendFormat("Trucks received last month: {0:0}", Mathf.Max(stats.CarsReceived, stats.CarsReceivedLastTime) / CargoData.TruckCapacity);
+                    var timeScale = mod.Options.UseMonthlyValues? 1.0f: 0.25f;
+
+                    var receivedAmount = Mathf.Ceil(Mathf.Max(stats.CarsReceived, stats.CarsReceivedLastTime) /
+                                                    CargoData.TruckCapacity * timeScale);
+
+                    var sentAmount = Mathf.Ceil(Mathf.Max(stats.CarsSent, stats.CarsSentLastTime) /
+                                                CargoData.TruckCapacity * timeScale);
+
+                    sb.AppendFormat(
+                        mod.Options.UseMonthlyValues ?
+                            "Trucks received last month: {0:0}" :
+                            "Trucks received last week: {0:0}", receivedAmount);
                     sb.AppendLine();
-                    sb.AppendFormat("Trucks sent last month: {0:0}", Mathf.Max(stats.CarsSent, stats.CarsSentLastTime) / CargoData.TruckCapacity);
+                    sb.AppendFormat(
+                        mod.Options.UseMonthlyValues ?
+                        "Trucks sent last month: {0:0}" :
+                        "Trucks sent last week: {0:0}", sentAmount);
                     sb.AppendLine();
                     sb.Append("Click for more!");
                     statsLabel.text = sb.ToString();

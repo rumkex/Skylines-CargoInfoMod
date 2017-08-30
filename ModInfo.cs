@@ -1,4 +1,5 @@
-﻿using ICities;
+﻿using ColossalFramework;
+using ICities;
 
 namespace CargoInfoMod
 {
@@ -12,10 +13,16 @@ namespace CargoInfoMod
 
         internal CargoData data;
 
-        public static readonly uint GameVersion = 163832080u;
-        public static readonly uint GameVersionA = 1u;
-        public static readonly uint GameVersionB = 7u;
-        public static readonly uint GameVersionC = 1u;
-        public static readonly uint GameVersionBuild = 1u;
+        internal Options Options = new Options();
+
+        public void OnSettingsUI(UIHelperBase helper)
+        {
+            helper.AddCheckbox("Use months instead of weeks", Options.UseMonthlyValues, state => Options.UseMonthlyValues.value = state);
+        }
+    }
+
+    public class Options
+    {
+        public SavedBool UseMonthlyValues = new SavedBool("useMonthlyCargoValues", Settings.gameSettingsFile);
     }
 }

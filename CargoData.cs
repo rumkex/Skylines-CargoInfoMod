@@ -85,7 +85,7 @@ namespace CargoInfoMod
     {
         public static CargoData Instance;
 
-        public const int TruckCapacity = 8000;
+        public const float TruckCapacity = 8000f;
 
         private ModInfo mod;
 
@@ -136,8 +136,8 @@ namespace CargoInfoMod
                     {
                         CarsCounted =
                         {
-                            [(int) (CarFlags.Previous | CarFlags.Goods | CarFlags.Sent)] = kv.Value.carsSentLastTime * TruckCapacity,
-                            [(int) (CarFlags.Previous | CarFlags.Goods)] = kv.Value.carsReceivedLastTime * TruckCapacity
+                            [(int) (CarFlags.Previous | CarFlags.Goods | CarFlags.Sent)] = kv.Value.carsSentLastTime * (int)TruckCapacity,
+                            [(int) (CarFlags.Previous | CarFlags.Goods)] = kv.Value.carsReceivedLastTime * (int)TruckCapacity
                         }
                     });
                 }
