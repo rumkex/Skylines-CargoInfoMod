@@ -45,7 +45,7 @@ namespace CargoInfoMod
             handle.size = new Vector2(384, 40);
 
             var windowLabel = handle.AddUIComponent<UILabel>();
-            windowLabel.text = "Cargo Statistics";
+            windowLabel.text = Localization.Get("STATS_WINDOW_LABEL");
             windowLabel.anchor = UIAnchorStyle.CenterVertical | UIAnchorStyle.CenterHorizontal;
 
             var closeButton = handle.AddUIComponent<UIButton>();
@@ -67,19 +67,19 @@ namespace CargoInfoMod
             var localLabel = labelPanel.AddUIComponent<UILabel>();
             localLabel.autoSize = false;
             localLabel.size = new Vector2(90, 20);
-            localLabel.text = "Local";
+            localLabel.text = Localization.Get("LOCAL");
             localLabel.textAlignment = UIHorizontalAlignment.Center;
 
             var importLabel = labelPanel.AddUIComponent<UILabel>();
             importLabel.autoSize = false;
             importLabel.size = new Vector2(90, 20);
-            importLabel.text = "Import";
+            importLabel.text = Localization.Get("IMPORT");
             importLabel.textAlignment = UIHorizontalAlignment.Center;
 
             var exportLabel = labelPanel.AddUIComponent<UILabel>();
             exportLabel.autoSize = false;
             exportLabel.size = new Vector2(90, 20);
-            exportLabel.text = "Export";
+            exportLabel.text = Localization.Get("EXPORT");
             exportLabel.textAlignment = UIHorizontalAlignment.Center;
 
             var rcvdPanel = AddUIComponent<UIPanel>();
@@ -89,7 +89,7 @@ namespace CargoInfoMod
             rcvdPanel.autoLayoutPadding = new RectOffset(5, 5, 5, 5);
 
             var rcvdLabel = rcvdPanel.AddUIComponent<UILabel>();
-            rcvdLabel.text = "Received";
+            rcvdLabel.text = Localization.Get("RECEIVED");
             rcvdLabel.textAlignment = UIHorizontalAlignment.Center;
             rcvdLabel.verticalAlignment = UIVerticalAlignment.Middle;
             rcvdLabel.autoSize = false;
@@ -109,7 +109,7 @@ namespace CargoInfoMod
             sentPanel.autoLayoutPadding = new RectOffset(5, 5, 5, 5);
 
             var sentLabel = sentPanel.AddUIComponent<UILabel>();
-            sentLabel.text = "Sent";
+            sentLabel.text = Localization.Get("SENT");
             sentLabel.textAlignment = UIHorizontalAlignment.Center;
             sentLabel.verticalAlignment = UIVerticalAlignment.Middle;
             sentLabel.autoSize = false;
@@ -130,7 +130,7 @@ namespace CargoInfoMod
             resetButton.textScale = 0.6f;
             resetButton.autoSize = false;
             resetButton.size = new Vector2(32, 10);
-            resetButton.tooltip = "Reset all counters for this building - use with care!";
+            resetButton.tooltip = Localization.Get("RESET_COUNTERS_TOOLTIP");
 
             resetButton.eventClicked += (sender, e) =>
             {
@@ -146,15 +146,15 @@ namespace CargoInfoMod
             modeButton.textScale = 0.6f;
             modeButton.autoSize = false;
             modeButton.size = new Vector2(32, 10);
-            modeButton.tooltip = "Switch between display modes (now displaying values for last month)";
+            modeButton.tooltip = Localization.Get("SWITCH_MODES_TOOLTIP_PREV");
 
             modeButton.eventClicked += (sender, e) =>
             {
                 displayCurrent = !displayCurrent;
                 modeButton.text = displayCurrent ? "Cur" : "Prev";
                 modeButton.tooltip = displayCurrent
-                    ? "Switch between display modes (now displaying values for current month)"
-                    : "Switch between display modes (now displaying values for previous month)";
+                    ? Localization.Get("SWITCH_MODES_TOOLTIP_CUR")
+                    : Localization.Get("SWITCH_MODES_TOOLTIP_PREV");
                 modeButton.RefreshTooltip();
             };
 
@@ -205,7 +205,7 @@ namespace CargoInfoMod
 
                 var categoryTotal = stats.GetTotalWhere(t => category(t) && (t & CarFlags.Previous) == testFlag);
 
-                labels[i].text = string.Format("{0:0}k units", categoryTotal / 1000);
+                labels[i].text = string.Format("{0:0}{1}", categoryTotal / 1000, Localization.Get("KILO_UNITS"));
 
                 if (categoryTotal == 0)
                 {

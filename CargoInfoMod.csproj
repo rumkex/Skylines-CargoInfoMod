@@ -60,6 +60,7 @@
     <Compile Include="CargoCounter.cs" />
     <Compile Include="CargoData.cs" />
     <Compile Include="CargoUIPanel.cs" />
+    <Compile Include="Localization.cs" />
     <Compile Include="ModInfo.cs" />
     <Compile Include="HarmonyDetours.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -71,6 +72,16 @@
       <Project>{362564e1-ab70-424f-a0ec-c18e66494fa9}</Project>
       <Name>CargoInfoMod.Data</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Locales\ru.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Locales\en.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

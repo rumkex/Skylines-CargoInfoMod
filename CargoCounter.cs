@@ -178,7 +178,7 @@ namespace CargoInfoMod
                     var total = result.Sum();
                     Debug.Log(string.Join(", ", result.Select(v => v / total).Select(f => f.ToString()).ToArray()));
                     vehicleCargoChart.isVisible = true;
-                    vehicleCargoChart.tooltip = string.Format("{0:0}k units total", total / 1000);
+                    vehicleCargoChart.tooltip = string.Format("{0:0}{1}", total / 1000, Localization.Get("KILO_UNITS"));
                     if (Math.Abs(total) < 1f) total = 1f;
                     vehicleCargoChart.SetValues(result.Select(v => v / total).ToArray());
                 }
@@ -208,16 +208,16 @@ namespace CargoInfoMod
                                                 CargoData.TruckCapacity * timeScale);
 
                     sb.AppendFormat(
-                        mod.Options.UseMonthlyValues ?
-                            "Trucks received last month: {0:0}" :
-                            "Trucks received last week: {0:0}", receivedAmount);
+                        "{0}: {1:0}",
+                        Localization.Get(mod.Options.UseMonthlyValues ? "TRUCKS_RCVD_LAST_MONTH": "TRUCKS_RCVD_LAST_WEEK"),
+                        receivedAmount);
                     sb.AppendLine();
                     sb.AppendFormat(
-                        mod.Options.UseMonthlyValues ?
-                        "Trucks sent last month: {0:0}" :
-                        "Trucks sent last week: {0:0}", sentAmount);
+                        "{0}: {1:0}",
+                        Localization.Get(mod.Options.UseMonthlyValues ? "TRUCKS_SENT_LAST_MONTH" : "TRUCKS_SENT_LAST_WEEK"),
+                        sentAmount);
                     sb.AppendLine();
-                    sb.Append("Click for more!");
+                    sb.Append(Localization.Get("CLICK_MORE"));
                     statsLabel.text = sb.ToString();
                 }
             }
