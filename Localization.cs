@@ -31,19 +31,18 @@ namespace CargoInfoMod
             return locale;
         }
 
+        private static string LocalePath(string lang)
+        {
+            var modPath = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly()).modPath;
+            return Path.Combine(modPath, $"Locales/{lang}.txt");
+        }
+
         public static string Get(string id)
         {
             var lang = LocaleManager.instance.language ?? "en";
             if (!localeStore.ContainsKey(lang))
             {
-                Debug.Log(Assembly.GetExecutingAssembly().Location);
-                var modPath = PluginManager.instance.FindPluginInfo(Assembly.GetExecutingAssembly()).modPath;
-                var localePath = Path.Combine(modPath, $"Locales/{lang}.txt");
-                if (!File.Exists(localePath))
-                {
-                    localeStore.Add(lang, localeStore["en"]);
-                }
-                localeStore.Add(lang, LocaleFromFile(localePath));
+                localeStore.Add(lang, LocaleFromFile(LocalePath(File.Exists(LocalePath(lang))? lang: "en")));
             }
             return localeStore[lang].Get(new Locale.Key { m_Identifier = id });
         }
