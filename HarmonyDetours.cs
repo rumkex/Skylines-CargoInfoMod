@@ -7,16 +7,23 @@ namespace CargoInfoMod
 {
     static class HarmonyDetours
     {
+        private static void ConditionalPatch(this HarmonyInstance harmony, MethodBase method, HarmonyMethod prefix, HarmonyMethod postfix)
+        {
+            var fullMethodName = string.Format("{0}.{1}", method.ReflectedType?.Name ?? "(null)", method.Name);
+            if (harmony.IsPatched(method)?.Owners?.Contains(harmony.Id) == true)
+            {
+                Debug.LogWarningFormat("Harmony patches already present for {0}", fullMethodName);
+            }
+            else
+            {
+                Debug.LogFormat("Patching {0}...", fullMethodName);
+                harmony.Patch(method, prefix, postfix);
+            }
+        }
+
         public static void Apply()
         {
             var harmony = HarmonyInstance.Create(ModInfo.Namespace);
-            Version currentVersion;
-            if (harmony.VersionInfo(out currentVersion).ContainsKey(ModInfo.Namespace))
-            {
-                Debug.LogWarning("Harmony patches already present");
-                return;
-            }
-            Debug.Log("Harmony v" + currentVersion);
 
             var truckSetSource = typeof(CargoTruckAI).GetMethod("SetSource");
             var truckSetSourcePostfix = typeof(HarmonyDetours).GetMethod("CargoTruckAI_SetSource");
@@ -24,17 +31,13 @@ namespace CargoInfoMod
             var truckChangeVehicleTypePrefix = typeof(HarmonyDetours).GetMethod("CargoTruckAI_PreChangeVehicleType");
             var truckChangeVehicleTypePostfix = typeof(HarmonyDetours).GetMethod("CargoTruckAI_PostChangeVehicleType");
 
-            Debug.Log("Patching CargoTruckAI...");
-            harmony.Patch(
-                truckSetSource,
+            harmony.ConditionalPatch(truckSetSource,
                 null,
-                new HarmonyMethod(truckSetSourcePostfix)
-                );
-            harmony.Patch(
-                truckChangeVehicleType,
+                new HarmonyMethod(truckSetSourcePostfix));
+
+            harmony.ConditionalPatch(truckChangeVehicleType,
                 new HarmonyMethod(truckChangeVehicleTypePrefix),
-                new HarmonyMethod(truckChangeVehicleTypePostfix)
-                );
+                new HarmonyMethod(truckChangeVehicleTypePostfix));
 
             Debug.Log("Harmony patches applied");
         }
