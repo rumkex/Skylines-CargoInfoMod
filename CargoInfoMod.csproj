@@ -35,8 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>..\Harmony\Harmony\bin\Release\0Harmony.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>lib\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>C:\Data\Steam\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
