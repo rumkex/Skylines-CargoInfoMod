@@ -1,0 +1,15 @@
+CLICK_MORE	세부사항을 보시려면 클릭하십시오!
+KILO_UNITS	K 단위는 이와 같이 사용됩니다 "100k units"
+TRUCKS_RCVD_LAST_MONTH	지난 달 받은 트럭
+TRUCKS_RCVD_LAST_WEEK	지난 주 받은 트럭
+TRUCKS_SENT_LAST_MONTH	지난 달 보낸 트럭
+TRUCKS_SENT_LAST_WEEK	지난 주 보낸 트럭
+RECEIVED	받음
+SENT	보냄
+LOCAL	시내
+IMPORT	수입
+EXPORT	수출
+STATS_WINDOW_LABEL	화물 변동내역
+RESET_COUNTERS_TOOLTIP	주의 - 해당 건물에 집계된 화물 변동내역이 초기화 됩니다!
+SWITCH_MODES_TOOLTIP_PREV	표기되는 수치 값 모드를 변경 (현재 지난달 수치 값을 보여주고 있음)
+SWITCH_MODES_TOOLTIP_CUR	표기되는 수치 값 모드를 변경 (현재 이번달 수치 값을 보여주고 있음)
