@@ -10,7 +10,7 @@ namespace CargoInfoMod
         private static void ConditionalPatch(this HarmonyInstance harmony, MethodBase method, HarmonyMethod prefix, HarmonyMethod postfix)
         {
             var fullMethodName = string.Format("{0}.{1}", method.ReflectedType?.Name ?? "(null)", method.Name);
-            if (harmony.IsPatched(method)?.Owners?.Contains(harmony.Id) == true)
+            if (harmony.GetPatchInfo(method)?.Owners?.Contains(harmony.Id) == true)
             {
                 Debug.LogWarningFormat("Harmony patches already present for {0}", fullMethodName);
             }
