@@ -76,14 +76,14 @@ namespace CargoInfoMod
             cargoPanel = (CargoUIPanel)UIView.GetAView().AddUIComponent(typeof(CargoUIPanel));
 
             var servicePanel = UIHelper.GetPanel("(Library) CityServiceWorldInfoPanel");
-            var statsPanel = servicePanel?.Find<UIPanel>("StatsPanel");
-            statsLabel = statsPanel?.Find<UILabel>("Info");
+            var statsPanel = servicePanel?.Find<UIPanel>("DescPanel");
+            statsLabel = statsPanel?.Find<UILabel>("Desc");
             if (servicePanel == null)
                 Debug.LogError("CityServiceWorldInfoPanel not found");
             if (statsPanel == null)
-                Debug.LogError("Service stats panel not found");
+                Debug.LogError("DescPanel not found");
             if (statsLabel == null)
-                Debug.LogError("Service stats label not found");
+                Debug.LogError("DescPanel.Desc label not found");
             else
             {
                 Debug.Log("Service stats label found!");
