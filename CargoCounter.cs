@@ -60,13 +60,13 @@ namespace CargoInfoMod
 
         private void OnLevelUnloaded()
         {
-            if (cargoPanel == null)
-                return;
-
             Debug.Log("Cleaning up UI...");
-            statsLabel.eventClicked -= showDelegate;
-            GameObject.Destroy(cargoPanel);
-            GameObject.Destroy(vehicleCargoChart);
+            if (statsLabel != null)
+                statsLabel.eventClicked -= showDelegate;
+            if (cargoPanel != null)
+                GameObject.Destroy(cargoPanel);
+            if (vehicleCargoChart != null)
+                GameObject.Destroy(vehicleCargoChart);
         }
 
         private void SetupUIBindings()
